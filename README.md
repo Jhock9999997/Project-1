@@ -60,5 +60,80 @@ Regarding the comprised security objectives, the following compromised goals hav
 
  Addressing the SYN flood attack requires a combination of preventative, detective, and corrective strategies. Preventative measures, such as enabling HTTPS and restricting access to essential ports, strengthen the system. Detective strategies like attack detection systems and traffic alerts ensure suspicious activity is quickly identified. Corrective actions, including IP blocking and terminating malicious connections, minimize the impact of ongoing threats. Together, these strategies create a layered defence, enhancing the network's resilience and safeguarding it from both current and future threats
 
+****Task 2: Network Performance Evaluation***
+This task involves analyzing an ns-3 trace file generated from a simulation of a four-node network: n0 (source), n1 (router), and n2/n3 (sinks). Traffic flows include TCP segments from n0 to both n2 and n3, with payload sizes of 50 bytes. Node IPs are:
+n0: 192.168.1.1
+n1: 192.168.1.2 / 192.168.2.1 / 192.168.3.1
+n2: 192.168.2.2
+n3: 192.168.3.2
+I have chosen n0 as the source and n3 as the sink for this analysis.
+The following performance metrics are calculated using grep and awk in Linux:
+Round trip delay over time
+Minimum round trip delay
+Average round trip delay
+Maximum round trip delay
+Although I am unable to attach the ns-3 trace file, the following shows my full working and calculations.
 
+![image](https://github.com/user-attachments/assets/24d05348-b213-4934-adf9-18219a2119da)
 
+Node n0 is a source node. Nodes n2 and n3 are sink nodes. Node n1 is a router.  
+The network traffic flows are as follows:
+ n0 => n2 TCP segments (payload size = 50 bytes)
+ n0 => n3 TCP segments (payload size = 50 bytes)
+ The IP addresses for the four nodes in the network are configured as follows:
+ n0: 192.168.1.1
+ n1: 192.168.1.2 and 192.168.2.1 and 192.168.3.1
+ n2: 192.168.2.2
+ n3: 192.168.3.2
+ Data preparation using supplied trace file
+ ** Step 1 - Extract relevant data for analysis from the trace file.
+ As we are measuring round trip performance from n0 to n3, we can extract the relevant trace file packets using a combination of the source node identifier for n0 (NodeList/0/) and the destination IP address for n3 (192.168.3.2).
+ grep "NodeList/0/" Assignment-1.tr | grep "192.168.3.2" > 
+Assignment3_Task2_n0_n3_nodelist0.tr
+** Step 2 - Retrieve the enqueued packets from Assignment3_Task2_n0_n3_nodelist0.tr and write to a new file 
+round_trip1.tr
+ grep ^"+ " Assignment3_Task2_n0_n3_nodelist0.tr > round_trip1.tr
+ ** Step 3 - Retrieve the received ACK packets from Assignment3_Task2_n0_n3_nodelist0.tr and append to previous file round_trip1.tr
+ grep ^"r " Assignment3_Task2_n0_n3_nodelist0.tr >> round_trip1.tr
+ ** Step 4 - Sort round_trip1.tr by packet id number (field 19) and write to new file round_trip2.tr
+ sort -gk 19 round_trip1.tr > round_trip2.tr
+ ** Step 5 - From round_trip2.tr, calculate the difference (d) between field one receiving ACK (r) and enqueue time (+) in seconds and write the results to field three for each packet (field 19) to new file round_trip3.tr
+ awk '$1~/[+]/{tx=$2; idt=$19} $1~/^r/{rx=$2; idr=$19; if(idt==idr) d=rx-tx; $1=$1 " (d= " d  
+" )"} 1' round_trip2.tr > round_trip3.tr
+ ** Step 6 - Extract the received packets containing the results of this difference calculation from round_trip3.tr to a new file round_trip4.tr 
+grep ^"r " round_trip3.tr > round_trip4.tr
+** Step 7 - Save a copy of round_trip4.tr as a text file round_trip4.txt to use as an input dataset for gnuplot
+ cp round_trip4.tr round_trip4.txt
+ **Round Trip Delay Over Time**
+ ** Step 1 - Sort round_trip4.tr by elapsed time (field five) and write to new file rtdot.tr
+ sort -gk 5 round_trip4.tr > rtdot.txt
+ ** Step 2 - Using rtdot.txt as the input file for gnuplot, plot the Round Trip Delay Over Time using field five (elapsed time) as the X-axis and field three (round trip delay) as the Y-axis value
+
+![image](https://github.com/user-attachments/assets/25ee4a75-4a2c-4379-a382-7fa2f151163e)
+
+**Minimum Round Trip Delay**
+Step 1 - Using round_trip4.tr as the input file, use cat and awk to find the minimum value of field three (difference)
+ cat round_trip4.tr | awk 'min>$3 || NR==1{ min=$3 } END{ print min }'
+ = 0.01264 seconds
+ Step 2 - Using round_trip4.txt as the input file for gnuplot, plot the Round Trip Delay using field 22 (Packet ID) as the X-axis and field three (round trip delay) as the Y-axis value.
+ ![image](https://github.com/user-attachments/assets/12cd9128-f758-440e-ba8a-4376b11244cc)
+
+**Average Roound Trip Delay**
+** Step 1 - Using round_trip4.tr, add all the difference values in field three to get a total round trip time for all packets (in seconds) and print the total to screen.
+ cat round_trip4.tr | awk '{total+=$3} END {print total}'
+ Total seconds = 9969.32
+** Step 2 - Using round_trip4.tr, count the number of received packets using field one (r) and print to screen.
+ grep -c ^"r " round_trip4.tr
+ Total packets = 1792
+** Step 3 - Using the two figures calculated above, perform the following calculation to calculate the average 
+round trip delay:
+ Total seconds / total packets = seconds Average Round Trip Delay
+ 9969.32 / 1792 = 5.5632366 seconds Average Round Trip Delay
+
+ **Maximum Round Trip Delay**
+ ** Step 1 - Using round_trip4.tr as the input file, use cat and awk to find the maximum value of field three (difference)
+ cat round_trip4.tr | awk 'max<$3 || NR==1{ max=$3 } END{ print max }'
+ = 15.2163 seconds
+ ** Step 2 - Using round_trip4.txt as the input file for gnuplot, plot the Round Trip Delay using field 22 (Packet ID) as the X-axis and field three (round trip delay) as the Y-axis value. Note that this provides the same result as for the Minimum Round Trip Display, so that plot is also referenced here.
+
+![image](https://github.com/user-attachments/assets/ef9f33cd-0736-4f55-b420-c8c5ae00f3bb)
