@@ -86,6 +86,7 @@ The network traffic flows are as follows:
  n2: 192.168.2.2
  n3: 192.168.3.2
  Data preparation using supplied trace file
+ 
  **Step 1** - Extract relevant data for analysis from the trace file.
  As we are measuring round trip performance from n0 to n3, we can extract the relevant trace file packets using a combination of the source node identifier for n0 (NodeList/0/) and the destination IP address for n3 (192.168.3.2).
  grep "NodeList/0/" Assignment-1.tr | grep "192.168.3.2" > 
