@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/6ee7d0da-32f9-49c9-b607-b0930a63c5bc)# Project-1
+# Project-1
 In this project I took on the role of a network administrator to investigate the situation, analyze the potential cause, suggest solutions, and outline the limitations of the solution. At the end I provided a detailed report on my findings. 
 
 #Scenario
