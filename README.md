@@ -1,4 +1,4 @@
-# Project-1
+![image](https://github.com/user-attachments/assets/6ee7d0da-32f9-49c9-b607-b0930a63c5bc)# Project-1
 In this project I took on the role of a network administrator to investigate the situation, analyze the potential cause, suggest solutions, and outline the limitations of the solution. At the end I provided a detailed report on my findings. 
 
 #Scenario
@@ -28,8 +28,37 @@ On Seq No.3: The client sends an ACK to the server.
  *HTTP Request
  On Seq No. 5: The client sends sends GET /index to the server.
  *HTTP Response
+
+ 
  On Seq No. 7: The server responds with "Hello World", following the som ACK TCP packet to ensure delivery.
 *Termination of TCP connection
  On Seq No. 13: The server responded with FIN-ACK to end the connection.
  On Seq No. 14: The client confirms with ACK to termination. 
+
+** Abnormal behaviours identified
+![image](https://github.com/user-attachments/assets/da9bbbbd-74b0-44b4-abd2-930acc088f4c)
+As the screenshot suggests, there are 3 abnormal behaviours which is suspicious and identified,
+-> Incrementing source ports
+ The varied source IP addresses with port increments from 2430 to 2449 all the way by the difference of 1, this is rare to see in the normal situation. And this could be led by some scripts or tools running on the client side, in iterative way to configure the proxy source IP ports.
+-> Destination port is always 0
+![image](https://github.com/user-attachments/assets/8ff68c7f-59fa-40ca-86eb-5f84eda3ac55)
+The request with same destination IP address which is 192.168.170.8 where its destination port is always 0, in a normal way, port 0 on the system is reserved and not used for application-layer communication. While there are massive of requests configured with destination port 0, only malformed packets can have such pattern, which means these requests could be done by intentionally designed and configured, so that the server could not respond but still waiting for reply.
+ There is only SYNC packet, the client never gets replied
+ ![image](https://github.com/user-attachments/assets/b43ba0d8-476e-450a-95f2-842a2f0361ad)
+The SYNC packet is the first step to establish connection with server, while with destination port 0, this means the handshake could never be done, instead, this will consume the available resources on the server and the other valid requests could not be handled correctly.
+
+** ANALYSIS of compromised security issues and goals
+-> Denial of Service attack
+![image](https://github.com/user-attachments/assets/7cb8286d-7f28-4136-b213-f4d78a246ef0)
+
+-> Exhausted server resources
+
+Regarding the comprised security objectives, the following compromised goals have been identified
+-> TCP packet integrity
+-> Server response availability 
+-> Port usability testing
+
+ Addressing the SYN flood attack requires a combination of preventative, detective, and corrective strategies. Preventative measures, such as enabling HTTPS and restricting access to essential ports, strengthen the system. Detective strategies like attack detection systems and traffic alerts ensure suspicious activity is quickly identified. Corrective actions, including IP blocking and terminating malicious connections, minimize the impact of ongoing threats. Together, these strategies create a layered defence, enhancing the network's resilience and safeguarding it from both current and future threats
+
+
 
