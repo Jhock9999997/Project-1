@@ -86,24 +86,31 @@ The network traffic flows are as follows:
  n2: 192.168.2.2
  n3: 192.168.3.2
  Data preparation using supplied trace file
- ** Step 1 - Extract relevant data for analysis from the trace file.
+ **Step 1** - Extract relevant data for analysis from the trace file.
  As we are measuring round trip performance from n0 to n3, we can extract the relevant trace file packets using a combination of the source node identifier for n0 (NodeList/0/) and the destination IP address for n3 (192.168.3.2).
  grep "NodeList/0/" Assignment-1.tr | grep "192.168.3.2" > 
 Assignment3_Task2_n0_n3_nodelist0.tr
-** Step 2 - Retrieve the enqueued packets from Assignment3_Task2_n0_n3_nodelist0.tr and write to a new file 
+
+**Step 2** - Retrieve the enqueued packets from Assignment3_Task2_n0_n3_nodelist0.tr and write to a new file 
 round_trip1.tr
  grep ^"+ " Assignment3_Task2_n0_n3_nodelist0.tr > round_trip1.tr
- ** Step 3 - Retrieve the received ACK packets from Assignment3_Task2_n0_n3_nodelist0.tr and append to previous file round_trip1.tr
+ 
+ **Step 3** - Retrieve the received ACK packets from Assignment3_Task2_n0_n3_nodelist0.tr and append to previous file round_trip1.tr
  grep ^"r " Assignment3_Task2_n0_n3_nodelist0.tr >> round_trip1.tr
- ** Step 4 - Sort round_trip1.tr by packet id number (field 19) and write to new file round_trip2.tr
+ 
+ **Step 4** - Sort round_trip1.tr by packet id number (field 19) and write to new file round_trip2.tr
  sort -gk 19 round_trip1.tr > round_trip2.tr
- ** Step 5 - From round_trip2.tr, calculate the difference (d) between field one receiving ACK (r) and enqueue time (+) in seconds and write the results to field three for each packet (field 19) to new file round_trip3.tr
+ 
+ **Step 5** - From round_trip2.tr, calculate the difference (d) between field one receiving ACK (r) and enqueue time (+) in seconds and write the results to field three for each packet (field 19) to new file round_trip3.tr
  awk '$1~/[+]/{tx=$2; idt=$19} $1~/^r/{rx=$2; idr=$19; if(idt==idr) d=rx-tx; $1=$1 " (d= " d  
 " )"} 1' round_trip2.tr > round_trip3.tr
- ** Step 6 - Extract the received packets containing the results of this difference calculation from round_trip3.tr to a new file round_trip4.tr 
+
+ **Step 6** - Extract the received packets containing the results of this difference calculation from round_trip3.tr to a new file round_trip4.tr 
 grep ^"r " round_trip3.tr > round_trip4.tr
-** Step 7 - Save a copy of round_trip4.tr as a text file round_trip4.txt to use as an input dataset for gnuplot
+
+**Step 7** - Save a copy of round_trip4.tr as a text file round_trip4.txt to use as an input dataset for gnuplot
  cp round_trip4.tr round_trip4.txt
+ 
  **Round Trip Delay Over Time**
  ** Step 1 - Sort round_trip4.tr by elapsed time (field five) and write to new file rtdot.tr
  sort -gk 5 round_trip4.tr > rtdot.txt
